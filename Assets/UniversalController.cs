@@ -114,6 +114,11 @@ public class UniversalController : MonoBehaviour
     void LookAround()
     {
         //vertical pitch rotation
+        cameraPitch = Mathf.Clamp(cameraPitch - lookInput.y, -90f, 90F);
+        cameraTransform.localRotation = Quaternion.Euler(cameraPitch, 0, 0);
+
+        //horizontal (yaw) rotation
+        transform.Rotate(transform.up, lookInput.x);
 
     }
 
