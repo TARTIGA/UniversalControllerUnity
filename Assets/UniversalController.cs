@@ -5,7 +5,11 @@ using UnityEngine;
 public class UniversalController : MonoBehaviour
 {
     public Transform cameraTransform;
+    public CharacterController characterController;
     public float cameraSensitivity;
+    public float moveSpeed;
+    public float moveInputDeadZone;
+
 
     int leftFingerId, rightFingerId;
     float halfScreenWidth;
@@ -15,6 +19,10 @@ public class UniversalController : MonoBehaviour
     Vector2 lookInput;
     float cameraPitch;
 
+    //Player movement control
+    Vector2 moveTouchStartPosition;
+    Vector2 moveInput;
+
     void Start()
     {
         // id = -1 finger not tracked
@@ -23,6 +31,10 @@ public class UniversalController : MonoBehaviour
 
         //get halfScreen
         halfScreenWidth = Screen.width / 2;
+
+        //calculate the movement input dead zone
+        //TODO: Deadzone????
+        moveInputDeadZone = Mathf.Pow(Screen.height / moveInputDeadZone, 2);
 
     }
 
@@ -52,6 +64,13 @@ public class UniversalController : MonoBehaviour
             LookAround();
         }
 
+        if (leftFingerId != -1)
+        {
+            //Move  handle if leftF is tracked
+            Move();
+        }
+
+
     }
 
     void GetTouchInput()
@@ -69,6 +88,8 @@ public class UniversalController : MonoBehaviour
                     {
                         //Start tracking the left finger if it was not previously being traked
                         leftFingerId = t.fingerId;
+                        //Set start position for the movement control finger
+                        moveTouchStartPosition = t.position;
                         Debug.Log("Tracking Left F");
                     }
                     else if (t.position.x > halfScreenWidth && rightFingerId == -1)
@@ -99,6 +120,11 @@ public class UniversalController : MonoBehaviour
                     {
                         lookInput = t.deltaPosition * cameraSensitivity * Time.deltaTime;
                     }
+                    else if (t.fingerId == leftFingerId)
+                    {
+                        // calculating the position delta from the start position
+                        moveInput = t.position - moveTouchStartPosition;
+                    }
                     break;
                 case TouchPhase.Stationary:
                     //SET the look input to zero if the finger is still
@@ -119,7 +145,18 @@ public class UniversalController : MonoBehaviour
 
         //horizontal (yaw) rotation
         transform.Rotate(transform.up, lookInput.x);
+    }
+    void Move()
+    {
+        //Don`t move if the touch delta is shorter than the designated dead zone
+        //TODO: Deadzone????
+        if (moveInput.sqrMagnitude <= moveInputDeadZone) return;
 
+        //Multiply the normalized direction by the speed
+        Vector2 movementDirection = moveInput.normalized * moveSpeed * Time.deltaTime;
+        //Move relatively to the local transform distance
+        //TODO: Why it in method????
+        characterController.Move(transform.right * movementDirection.x + transform.forward * movementDirection.y);
     }
 
 }
