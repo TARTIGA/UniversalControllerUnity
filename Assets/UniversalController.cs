@@ -4,10 +4,17 @@ using UnityEngine;
 
 public class UniversalController : MonoBehaviour
 {
+    public Transform cameraTransform;
+    public float cameraSensitivity;
 
     int leftFingerId, rightFingerId;
     float halfScreenWidth;
     // Start is called before the first frame update
+
+    //Camera control
+    Vector2 lookInput;
+    float cameraPitch;
+
     void Start()
     {
         // id = -1 finger not tracked
@@ -21,6 +28,33 @@ public class UniversalController : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {
+        //TEST
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     Debug.Log("Pressed primary button x - " + Input.mousePosition.x);
+        //     if (Input.mousePosition.x < halfScreenWidth)
+        //     {
+        //         Debug.Log("Left Half");
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("Right Half");
+        //     }
+        // }
+
+        //Handles input
+        GetTouchInput();
+
+        if (rightFingerId != -1)
+        {
+            //Look around method handle if rightF is tracked
+            LookAround();
+        }
+
+    }
+
+    void GetTouchInput()
     {
         //Iterate all touches
         for (int i = 0; i < Input.touchCount; i++)
@@ -59,9 +93,28 @@ public class UniversalController : MonoBehaviour
                         Debug.Log("Stopped tracking Right finger");
                     }
                     break;
+                case TouchPhase.Moved:
+                    //GET input for LookAround
+                    if (t.fingerId == rightFingerId)
+                    {
+                        lookInput = t.deltaPosition * cameraSensitivity * Time.deltaTime;
+                    }
+                    break;
+                case TouchPhase.Stationary:
+                    //SET the look input to zero if the finger is still
+                    if (t.fingerId == rightFingerId)
+                    {
+                        lookInput = Vector2.zero;
+                    }
+                    break;
 
             }
         }
+    }
+    void LookAround()
+    {
+        //vertical pitch rotation
 
     }
+
 }
