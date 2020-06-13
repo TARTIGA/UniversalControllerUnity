@@ -28,10 +28,14 @@ public class UniversalController : MonoBehaviour
     Vector2 moveTouchStartPosition;
     Vector2 moveInput;
 
+
+    public float gravity = -9.81f;
+    Vector3 velocity;
+
     void Start()
     {
         //Mouse
-        // Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
 
 
         // id = -1 finger not tracked
@@ -45,6 +49,7 @@ public class UniversalController : MonoBehaviour
         //TODO: Deadzone????
         moveInputDeadZone = Mathf.Pow(Screen.height / moveInputDeadZone, 2);
 
+
     }
 
     // Update is called once per frame
@@ -55,7 +60,6 @@ public class UniversalController : MonoBehaviour
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
-
         characterController.Move(move * moveSpeed * Time.deltaTime);
 
         // Mouse
@@ -67,6 +71,10 @@ public class UniversalController : MonoBehaviour
 
         transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
         playerBody.Rotate(Vector3.up * mouseX);
+
+        velocity.y += gravity * Time.deltaTime;
+
+        characterController.Move(velocity * Time.deltaTime);
 
 
         //
