@@ -4,7 +4,12 @@ using UnityEngine;
 
 public class UniversalController : MonoBehaviour
 {
+
+    public float mouseSensetivity = 100f;
     public Transform cameraTransform;
+    public Transform playerBody;
+
+    float xRotation = 0f;
     public CharacterController characterController;
     public float cameraSensitivity;
     public float moveSpeed;
@@ -25,6 +30,10 @@ public class UniversalController : MonoBehaviour
 
     void Start()
     {
+        //Mouse
+        // Cursor.lockState = CursorLockMode.Locked;
+
+
         // id = -1 finger not tracked
         leftFingerId = -1;
         rightFingerId = -1;
@@ -41,19 +50,26 @@ public class UniversalController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //TEST
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     Debug.Log("Pressed primary button x - " + Input.mousePosition.x);
-        //     if (Input.mousePosition.x < halfScreenWidth)
-        //     {
-        //         Debug.Log("Left Half");
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("Right Half");
-        //     }
-        // }
+        //BTNS Move
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+
+        Vector3 move = transform.right * x + transform.forward * z;
+
+        characterController.Move(move * moveSpeed * Time.deltaTime);
+
+        // Mouse
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensetivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensetivity * Time.deltaTime;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        playerBody.Rotate(Vector3.up * mouseX);
+
+
+        //
 
         //Handles input
         GetTouchInput();
